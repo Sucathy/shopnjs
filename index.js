@@ -31,7 +31,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 app.post("/upload", upload.array("product", 6), (req, res) => {
   let imageUrls = req.files.map((file) => {
-    return `http://localhost:4000/images/${file.filename}`;
+    return `https://shopnj.onrender.com/images/${file.filename}`;
   });
 
   res.json({
