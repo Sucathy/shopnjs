@@ -21,6 +21,14 @@ mongoose.connect(
 // paste your mongoDB Connection string above with password
 // password should not contain '@' special character
 
+const isAuthenticated = require("./middleware/auth");
+
+app.use(express.json());
+
+app.use("/protected", isAuthenticated, (req, res) => {
+  res.send("Protected content");
+});
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_SECRET,
@@ -142,7 +150,7 @@ app.use(express.json()); // For parsing application/json
 // Route for image upload
 app.post("/website", productUpload.array("website", 6), (req, res) => {
   let imageUrls = req.files.map(
-    (file) => `http://localhost:4000/images/${file.filename}`
+    (file) => `http://34.204.8.6:4000/images/${file.filename}`
   );
 
   res.json({
@@ -161,7 +169,7 @@ app.use("/images", express.static("upload/images"));
 // const websiteUpload = multer({ storage: websiteStorage });
 
 // app.post("/uploadWebsite", websiteUpload.single("screenshot"), (req, res) => {
-//   const screenshotUrl = `http://localhost:4000/website_screenshots/${req.file.filename}`;
+//   const screenshotUrl = `http://34.204.8.6:4000/website_screenshots/${req.file.filename}`;
 
 //   res.json({
 //     success: 1,
