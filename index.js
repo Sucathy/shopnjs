@@ -110,7 +110,7 @@ const upload = multer({ storage: storage });
 
 app.post("/upload", upload.array("product", 6), (req, res) => {
   let imageUrls = req.files.map((file) => {
-    return `https://shopnj.onrender.com/images/${file.filename}`;
+    return `http://34.229.212.238:4000/images/${file.filename}`;
   });
 
   res.json({
@@ -150,7 +150,7 @@ app.use(express.json()); // For parsing application/json
 // Route for image upload
 app.post("/website", productUpload.array("website", 6), (req, res) => {
   let imageUrls = req.files.map(
-    (file) => `http://34.204.8.6:4000/images/${file.filename}`
+    (file) => `http://34.229.212.238:4000/images/${file.filename}`
   );
 
   res.json({
@@ -169,7 +169,7 @@ app.use("/images", express.static("upload/images"));
 // const websiteUpload = multer({ storage: websiteStorage });
 
 // app.post("/uploadWebsite", websiteUpload.single("screenshot"), (req, res) => {
-//   const screenshotUrl = `http://34.204.8.6:4000/website_screenshots/${req.file.filename}`;
+//   const screenshotUrl = `http://34.229.212.238:4000/website_screenshots/${req.file.filename}`;
 
 //   res.json({
 //     success: 1,
