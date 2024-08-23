@@ -241,6 +241,7 @@ const orderSchema = new mongoose.Schema({
   // },
   orderId: {
     type: String,
+    required: true,
   },
   amount: {
     type: String,
@@ -258,6 +259,30 @@ const orderSchema = new mongoose.Schema({
     type: String,
     default: "pending",
   },
+  orderStatus: {
+    likeOrder: { type: Boolean, default: false },
+    status42: { type: Boolean, default: false },
+    orderCameActive: { type: Boolean, default: false },
+    deliveryOrder: { type: Boolean, default: false },
+  },
+  // orderStatus: {
+  //   likeOrder: {
+  //     type: Boolean,
+  //     default: false,
+  //   },
+  //   status42: {
+  //     type: Boolean,
+  //     default: false,
+  //   },
+  //   orderCameActive: {
+  //     type: Boolean,
+  //     default: false,
+  //   },
+  //   deliveryOrder: {
+  //     type: Boolean,
+  //     default: false,
+  //   },
+  // },
   // items: [
   //   {
   //     name: { type: String, required: true },
@@ -543,15 +568,12 @@ const Product = mongoose.model("Product", {
   },
   image4: {
     type: String,
-    required: true,
   },
   image5: {
     type: String,
-    required: true,
   },
   image6: {
     type: String,
-    required: true,
   },
   category: {
     type: String,
@@ -641,6 +663,88 @@ app.get("/", (req, res) => {
   res.send("Root");
 });
 
+app.post("/updateOrderStatus", async (req, res) => {
+  console.log("Received request to update order status");
+
+  try {
+    // Extracting data from the request body
+    const { userId, orderId, orderStatus } = req.body;
+    console.log("Request body:", { userId, orderId, orderStatus });
+
+    // Fetch the user from the database using the ID
+    const user = await Users.findById(userId).select("orders");
+    console.log("Fetching user by ID:", userId);
+
+    if (!user) {
+      console.log("User not found for ID:", userId);
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Find the order within the user's orders
+    console.log("Searching for order with orderId:", orderId);
+    const order = user.orders.find((order) => order.orderId === orderId);
+
+    if (!order) {
+      console.log("Order not found for orderId:", orderId);
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Update the order status in the database
+    console.log("Order found. Updating order status...");
+    order.orderStatus = {
+      ...order.orderStatus,
+      ...orderStatus, // Merge the new status with the existing status
+    };
+
+    // Save the updated user document
+    await user.save();
+
+    console.log("Order status updated successfully:", order.orderStatus);
+
+    // Return the updated order status to the client
+    res.json({
+      message: "Order status updated successfully",
+      orderStatus: order.orderStatus,
+    });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(500).json({ message: "Failed to update order status" });
+  }
+});
+
+app.get("/allOrders", async (req, res) => {
+  try {
+    const orders = await Users.find({});
+    console.log("All orders:", orders);
+    res.json(orders);
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ message: "Failed to fetch orders" });
+  }
+});
+
+app.get("/orderdetails/:orderId", fetchuser, async (req, res) => {
+  try {
+    const user = await Users.findById(req.user.id).select("orders");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const order = user.orders.find(
+      (order) => order.orderId === req.params.orderId
+    );
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.json({ order });
+  } catch (error) {
+    console.error("Error fetching order details:", error.message);
+    res.status(500).json({ message: "Failed to fetch order details" });
+  }
+});
+
+//
 /// getting all user details
 app.get("/allusers", async (req, res) => {
   try {
@@ -1473,6 +1577,12 @@ app.post("/addwebsite", async (req, res) => {
 //
 app.post("/removeproduct", async (req, res) => {
   const product = await Product.findOneAndDelete({ id: req.body.id });
+  console.log("Removed");
+  res.json({ success: true, name: req.body.name });
+});
+
+app.post("/removeproducts", async (req, res) => {
+  const website = await Website.findOneAndDelete({ id: req.body.id });
   console.log("Removed");
   res.json({ success: true, name: req.body.name });
 });
