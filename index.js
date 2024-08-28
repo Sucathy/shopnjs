@@ -110,7 +110,7 @@ const upload = multer({ storage: storage });
 
 app.post("/upload", upload.array("product", 6), (req, res) => {
   let imageUrls = req.files.map((file) => {
-    return `http://54.227.62.35:4000/images/${file.filename}`;
+    return `http://35.175.149.156:4000/images/${file.filename}`;
   });
 
   res.json({
@@ -150,7 +150,7 @@ app.use(express.json()); // For parsing application/json
 // Route for image upload
 app.post("/website", productUpload.array("website", 6), (req, res) => {
   let imageUrls = req.files.map(
-    (file) => `http://54.227.62.35:4000/images/${file.filename}`
+    (file) => `http://35.175.149.156:4000/images/${file.filename}`
   );
 
   res.json({
@@ -166,10 +166,42 @@ app.post("/website", productUpload.array("website", 6), (req, res) => {
 
 app.use("/images", express.static("upload/images"));
 
+///
+
+// Setup multer storage engine
+const sstorage = multer.diskStorage({
+  destination: path.join(__dirname, "upload/images"),
+  filename: (req, file, cb) => {
+    // Use a fixed name "modle_image" and append the original file extension
+    cb(null, `modle_image${path.extname(file.originalname)}`);
+  },
+});
+
+const supload = multer({ storage: sstorage });
+
+// Create an endpoint for image upload
+app.post("/uploadeds", supload.single("image"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ success: 0, message: "No file uploaded" });
+  }
+
+  const imageUrl = `http://35.175.149.156:4000/images/${req.file.filename}`;
+  const modelUrl = `http://35.175.149.156:4000/models/${req.file.filename}.glb`;
+
+  res.json({
+    success: 1,
+    image_url: imageUrl,
+    model_url: modelUrl,
+  });
+});
+
+// Serve static files from the "upload/images" directory
+app.use("/images", express.static(path.join(__dirname, "upload/images")));
+app.use("/models", express.static(path.join(__dirname, "models")));
 // const websiteUpload = multer({ storage: websiteStorage });
 
 // app.post("/uploadWebsite", websiteUpload.single("screenshot"), (req, res) => {
-//   const screenshotUrl = `http://54.227.62.35:4000/website_screenshots/${req.file.filename}`;
+//   const screenshotUrl = `http://35.175.149.156:4000/website_screenshots/${req.file.filename}`;
 
 //   res.json({
 //     success: 1,
@@ -662,6 +694,19 @@ const Website = mongoose.model("Website", {
 app.get("/", (req, res) => {
   res.send("Root");
 });
+
+///
+
+app.post("/save-avatar", (req, res) => {
+  const { userId, avatarData } = req.body;
+
+  // Save avatar data to the database or file storage
+  // Example: database.saveAvatar(userId, avatarData);
+
+  res.status(200).send("Avatar saved successfully");
+});
+
+///
 
 app.post("/updateOrderStatus", async (req, res) => {
   console.log("Received request to update order status");
