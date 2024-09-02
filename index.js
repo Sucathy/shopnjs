@@ -1497,7 +1497,7 @@ app.get("/users/:id", async (req, res) => {
 
 app.get("/newcollections", async (req, res) => {
   let products = await Product.find({});
-  let arr = products.slice(1).slice(-8);
+  let arr = products.slice(1).slice(-20);
   console.log("New Collections");
   res.send(arr);
 });
