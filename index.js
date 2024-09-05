@@ -110,7 +110,7 @@ const upload = multer({ storage: storage });
 
 app.post("/upload", upload.array("product", 6), (req, res) => {
   let imageUrls = req.files.map((file) => {
-    return `https://shopnj.onrender.com/images/${file.filename}`;
+    return `http://shopnj.onrender.com/images/${file.filename}`;
   });
 
   res.json({
@@ -150,7 +150,7 @@ app.use(express.json()); // For parsing application/json
 // Route for image upload
 app.post("/website", productUpload.array("website", 6), (req, res) => {
   let imageUrls = req.files.map(
-    (file) => `https://shopnj.onrender.com/images/${file.filename}`
+    (file) => `http://shopnj.onrender.com/images/${file.filename}`
   );
 
   res.json({
@@ -185,8 +185,8 @@ app.post("/uploadeds", supload.single("image"), (req, res) => {
     return res.status(400).json({ success: 0, message: "No file uploaded" });
   }
 
-  const imageUrl = `https://shopnj.onrender.com/images/${req.file.filename}`;
-  const modelUrl = `https://shopnj.onrender.com/models/${req.file.filename}.glb`;
+  const imageUrl = `http://shopnj.onrender.com/images/${req.file.filename}`;
+  const modelUrl = `http://shopnj.onrender.com/models/${req.file.filename}.glb`;
 
   res.json({
     success: 1,
